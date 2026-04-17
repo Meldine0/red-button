@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Red Button — Admin</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0f0f0f;
+      color: #fff;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 900;
+      letter-spacing: -1px;
+      color: #ff2222;
+    }
+
+    .round-big {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 8px 20px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 700px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: #141414;
+      border: 1px solid #252525;
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .card h2 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #555;
+      margin-bottom: 16px;
+    }
+
+    /* Action buttons */
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .action-btn {
+      padding: 14px 20px;
+      border-radius: 12px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .action-btn:active { transform: scale(0.97); }
+
+    .btn-reset   { background: #ff2222; color: #fff; }
+    .btn-next    { background: #2255ff; color: #fff; }
+    .btn-lock    { background: #1a1a1a; border: 1px solid #444; color: #fff; }
+    .btn-lock.active { background: #331100; border-color: #ff8800; color: #ff8800; }
+
+    .action-btn .icon { font-size: 1.2rem; }
+    .action-btn .label { flex: 1; }
+    .action-btn .desc { font-size: 0.75rem; font-weight: 400; opacity: 0.7; }
+
+    /* Press order */
+    #press-list-admin {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .press-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #1a1a1a;
+      border-radius: 10px;
+      padding: 10px 14px;
+      border: 1px solid #2a2a2a;
+      animation: slide-in 0.2s ease;
+    }
+
+    .press-item.first { border-color: #ff2222; background: #1a0808; }
+    .press-item.last  { border-color: #333; }
+
+    @keyframes slide-in {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .press-rank { font-size: 1.1rem; font-weight: 900; min-width: 30px; text-align: center; }
+    .press-name { font-size: 0.95rem; font-weight: 600; flex: 1; }
+
+    .press-tag {
+      font-size: 0.7rem; font-weight: 700;
+      padding: 3px 8px; border-radius: 20px;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .tag-first { background: #ff2222; color: #fff; }
+    .tag-last  { background: #333; color: #aaa; }
+
+    .empty-state {
+      color: #444;
+      font-size: 0.9rem;
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    /* Players list */
+    #players-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .player-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: #1a1a1a;
+      border: 1px solid #252525;
+    }
+
+    .player-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #22cc55;
+      flex-shrink: 0;
+    }
+
+    .player-name-input {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 600;
+      flex: 1;
+      outline: none;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .player-name-input:hover { background: #252525; }
+    .player-name-input:focus { background: #252525; }
+
+    .player-id {
+      font-size: 0.65rem;
+      color: #444;
+      font-family: monospace;
+    }
+
+    /* Status bar */
+    #status-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      max-width: 1100px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 12px 16px;
+      background: #141414;
+      border: 1px solid #252525;
+      border-radius: 12px;
+    }
+
+    .status-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #22cc55;
+      flex-shrink: 0;
+    }
+    .status-dot.locked { background: #ff8800; }
+    .status-dot.open   { background: #22cc55; animation: blink 1s infinite; }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+
+    #status-text { font-size: 0.9rem; font-weight: 600; flex: 1; }
+    #player-count { font-size: 0.8rem; color: #666; }
+
+    /* QR / link */
+    .link-box {
+      background: #0a0a0a;
+      border: 1px solid #252525;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 0.85rem;
+      color: #888;
+      word-break: break-all;
+    }
+    .link-box span { color: #fff; }
+    .copy-btn {
+      margin-top: 8px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: #aaa;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .copy-btn:hover { background: #252525; color: #fff; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🔴 Red Button <small style="font-size:0.6em;color:#555;font-weight:400">Admin</small></h1>
+  <span class="round-big" id="round-label">Round 1</span>
+</header>
+
+<!-- Status bar -->
+<div id="status-bar" style="margin-bottom:20px">
+  <div class="status-dot" id="status-dot"></div>
+  <span id="status-text">—</span>
+  <span id="player-count">0 joueur(s)</span>
+</div>
+
+<div class="grid">
+
+  <!-- Actions -->
+  <div class="card">
+    <h2>Contrôles</h2>
+    <div class="actions">
+      <button class="action-btn btn-reset" id="btn-reset">
+        <span class="icon">🔄</span>
+        <span class="label">Réinitialiser la question<br><span class="desc">Efface les buzzers, réouvre le bouton</span></span>
+      </button>
+      <button class="action-btn btn-next" id="btn-next">
+        <span class="icon">⏭</span>
+        <span class="label">Round suivant<br><span class="desc">Passer au round suivant + reset</span></span>
+      </button>
+      <button class="action-btn btn-lock" id="btn-lock">
+        <span class="icon" id="lock-icon">🔓</span>
+        <span class="label" id="lock-label">Verrouiller le bouton<br><span class="desc">Bloquer tous les buzzers</span></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Press order -->
+  <div class="card">
+    <h2>Ordre des buzzers</h2>
+    <div id="press-list-admin">
+      <p class="empty-state">En attente de buzzers…</p>
+    </div>
+  </div>
+
+  <!-- Players -->
+  <div class="card">
+    <h2>Joueurs connectés</h2>
+    <div id="players-list">
+      <p class="empty-state">Aucun joueur connecté</p>
+    </div>
+  </div>
+
+  <!-- Link -->
+  <div class="card">
+    <h2>Lien joueur</h2>
+    <div class="link-box">
+      Partage ce lien aux joueurs :<br>
+      <span id="player-link">—</span>
+    </div>
+    <button class="copy-btn" id="copy-btn">📋 Copier le lien</button>
+  </div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+
+  const btnReset = document.getElementById('btn-reset');
+  const btnNext  = document.getElementById('btn-next');
+  const btnLock  = document.getElementById('btn-lock');
+  const lockIcon = document.getElementById('lock-icon');
+  const lockLabel= document.getElementById('lock-label');
+  const statusDot= document.getElementById('status-dot');
+  const statusText=document.getElementById('status-text');
+  const playerCount=document.getElementById('player-count');
+  const roundLabel=document.getElementById('round-label');
+  const pressListEl=document.getElementById('press-list-admin');
+  const playersListEl=document.getElementById('players-list');
+  const playerLink=document.getElementById('player-link');
+  const copyBtn  = document.getElementById('copy-btn');
+
+  const origin = window.location.origin;
+  playerLink.textContent = origin + '/';
+
+  copyBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(origin + '/').then(() => {
+      copyBtn.textContent = '✅ Copié !';
+      setTimeout(() => copyBtn.textContent = '📋 Copier le lien', 2000);
+    });
+  });
+
+  btnReset.addEventListener('click', () => socket.emit('reset'));
+  btnNext.addEventListener('click',  () => socket.emit('next_round'));
+  btnLock.addEventListener('click',  () => socket.emit('toggle_lock'));
+
+  socket.on('state', (s) => {
+    roundLabel.textContent = `Round ${s.round}`;
+
+    // Status bar
+    if (s.locked) {
+      statusDot.className = 'status-dot locked';
+      statusText.textContent = '🔒 Bouton verrouillé';
+    } else {
+      statusDot.className = 'status-dot open';
+      statusText.textContent = '🟢 Bouton actif — en attente de buzzers';
+    }
+    playerCount.textContent = `${s.players.length} joueur(s)`;
+
+    // Lock button
+    btnLock.classList.toggle('active', s.locked);
+    lockIcon.textContent = s.locked ? '🔒' : '🔓';
+    const lockInner = btnLock.querySelector('.label');
+    lockInner.innerHTML = s.locked
+      ? 'Déverrouiller le bouton<br><span class="desc">Permettre les buzzers</span>'
+      : 'Verrouiller le bouton<br><span class="desc">Bloquer tous les buzzers</span>';
+
+    // Press list
+    pressListEl.innerHTML = '';
+    if (s.presses.length === 0) {
+      pressListEl.innerHTML = '<p class="empty-state">En attente de buzzers…</p>';
+    } else {
+      s.presses.forEach((p, i) => {
+        const div = document.createElement('div');
+        div.className = 'press-item' +
+          (i === 0 ? ' first' : '') +
+          (i === s.presses.length - 1 && s.presses.length > 1 ? ' last' : '');
+
+        const rank = document.createElement('span');
+        rank.className = 'press-rank';
+        rank.textContent = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
+
+        const name = document.createElement('span');
+        name.className = 'press-name';
+        name.textContent = p.name;
+
+        div.appendChild(rank);
+        div.appendChild(name);
+
+        if (i === 0) {
+          const tag = document.createElement('span');
+          tag.className = 'press-tag tag-first';
+          tag.textContent = '1er — parle en premier';
+          div.appendChild(tag);
+        } else if (i === s.presses.length - 1 && s.presses.length > 1) {
+          const tag = document.createElement('span');
+          tag.className = 'press-tag tag-last';
+          tag.textContent = 'dernier';
+          div.appendChild(tag);
+        }
+
+        pressListEl.appendChild(div);
+      });
+    }
+
+    // Players list
+    playersListEl.innerHTML = '';
+    if (s.players.length === 0) {
+      playersListEl.innerHTML = '<p class="empty-state">Aucun joueur connecté</p>';
+    } else {
+      s.players.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'player-item';
+
+        const dot = document.createElement('div');
+        dot.className = 'player-dot';
+
+        const input = document.createElement('input');
+        input.className = 'player-name-input';
+        input.value = p.name;
+        input.maxLength = 20;
+        input.title = 'Modifier le pseudo';
+        input.addEventListener('blur', () => {
+          const newName = input.value.trim();
+          if (newName && newName !== p.name) {
+            socket.emit('rename', { id: p.id, name: newName });
+          }
+        });
+        input.addEventListener('keydown', e => {
+          if (e.key === 'Enter') input.blur();
+        });
+
+        const id = document.createElement('span');
+        id.className = 'player-id';
+        id.textContent = p.id ? p.id.slice(0, 6) : '';
+
+        div.appendChild(dot);
+        div.appendChild(input);
+        div.appendChild(id);
+        playersListEl.appendChild(div);
+      });
+    }
+  });
+</script>
+</body>
+</html>
