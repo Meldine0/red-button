@@ -5,7 +5,10 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  transports: ['websocket'],
+  perMessageDeflate: false,
+});
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -46,10 +49,6 @@ io.on('connection', (socket) => {
     const alreadyPressed = state.presses.find(p => p.id === socket.id);
     if (alreadyPressed) return;
     state.presses.push({ id: socket.id, name: player.name, time: Date.now() });
-    if (state.presses.length === 1) {
-      // First press locks the button
-      state.locked = true;
-    }
     broadcastState();
   });
 

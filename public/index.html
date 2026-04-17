@@ -4,288 +4,85 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Red Button — Joueur</title>
+  <script src="https://js.pusher.com/8.4/pusher.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
-      background: #0f0f0f;
-      color: #fff;
+      background: #0f0f0f; color: #fff;
       font-family: 'Segoe UI', system-ui, sans-serif;
-      min-height: 100dvh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 24px;
-      padding: 20px;
-      overflow: hidden;
+      min-height: 100dvh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 24px; padding: 20px; overflow: hidden;
     }
-
-    /* Name screen */
-    #name-screen {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-      width: 100%;
-      max-width: 360px;
-    }
-
-    #name-screen h1 {
-      font-size: 2rem;
-      font-weight: 900;
-      letter-spacing: -1px;
-      color: #ff2222;
-    }
-
+    #name-screen { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; max-width: 360px; }
+    #name-screen h1 { font-size: 2rem; font-weight: 900; letter-spacing: -1px; color: #ff2222; }
     #name-screen p { color: #888; font-size: 0.95rem; }
-
     #name-input {
-      width: 100%;
-      padding: 16px 20px;
-      border-radius: 14px;
-      border: 2px solid #333;
-      background: #1a1a1a;
-      color: #fff;
-      font-size: 1.1rem;
-      outline: none;
-      transition: border-color 0.2s;
+      width: 100%; padding: 16px 20px; border-radius: 14px;
+      border: 2px solid #333; background: #1a1a1a; color: #fff;
+      font-size: 1.1rem; outline: none; transition: border-color 0.2s;
     }
     #name-input:focus { border-color: #ff2222; }
     #name-input::placeholder { color: #555; }
-
     #join-btn {
-      width: 100%;
-      padding: 16px;
-      border-radius: 14px;
-      border: none;
-      background: #ff2222;
-      color: #fff;
-      font-size: 1.1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.15s, transform 0.1s;
+      width: 100%; padding: 16px; border-radius: 14px; border: none;
+      background: #ff2222; color: #fff; font-size: 1.1rem; font-weight: 700;
+      cursor: pointer; transition: background 0.15s, transform 0.1s;
     }
     #join-btn:active { transform: scale(0.97); background: #cc1111; }
 
-    /* Game screen */
-    #game-screen {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 28px;
-      width: 100%;
-      max-width: 420px;
-    }
-
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-      padding: 0 4px;
-    }
-
-    .round-badge {
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 30px;
-      padding: 6px 16px;
-      font-size: 0.85rem;
-      color: #aaa;
-      font-weight: 600;
-    }
-
-    .my-name-badge {
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 30px;
-      padding: 6px 16px;
-      font-size: 0.85rem;
-      color: #fff;
-      font-weight: 600;
-      max-width: 150px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    /* Status message */
-    #status-msg {
-      font-size: 1.15rem;
-      font-weight: 600;
-      color: #ccc;
-      text-align: center;
-      min-height: 28px;
-      transition: color 0.3s;
-    }
-
-    /* Big red button */
-    .btn-wrap {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .btn-glow {
-      position: absolute;
-      width: 240px;
-      height: 240px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(255,34,34,0.35) 0%, transparent 70%);
-      transition: opacity 0.3s;
-      pointer-events: none;
-    }
-
+    #game-screen { display: none; flex-direction: column; align-items: center; gap: 28px; width: 100%; max-width: 420px; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 4px; }
+    .round-badge { background: #1a1a1a; border: 1px solid #333; border-radius: 30px; padding: 6px 16px; font-size: 0.85rem; color: #aaa; font-weight: 600; }
+    .my-name-badge { background: #1a1a1a; border: 1px solid #333; border-radius: 30px; padding: 6px 16px; font-size: 0.85rem; color: #fff; font-weight: 600; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #status-msg { font-size: 1.15rem; font-weight: 600; color: #ccc; text-align: center; min-height: 28px; transition: color 0.3s; }
+    .btn-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+    .btn-glow { position: absolute; width: 240px; height: 240px; border-radius: 50%; background: radial-gradient(circle, rgba(255,34,34,0.35) 0%, transparent 70%); pointer-events: none; }
     #red-btn {
-      position: relative;
-      width: 220px;
-      height: 220px;
-      border-radius: 50%;
-      border: none;
+      position: relative; width: 220px; height: 220px; border-radius: 50%; border: none;
       background: radial-gradient(circle at 35% 30%, #ff5555, #cc0000 60%, #880000);
-      box-shadow:
-        0 0 0 12px #1a0000,
-        0 0 0 16px #330000,
-        0 12px 40px rgba(255,0,0,0.4),
-        inset 0 4px 12px rgba(255,255,255,0.15),
-        inset 0 -4px 12px rgba(0,0,0,0.3);
-      cursor: pointer;
-      transition: transform 0.08s, box-shadow 0.08s;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
-      font-size: 1.1rem;
-      font-weight: 800;
-      color: rgba(255,255,255,0.9);
-      letter-spacing: 0.5px;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.5);
-      user-select: none;
+      box-shadow: 0 0 0 12px #1a0000, 0 0 0 16px #330000, 0 12px 40px rgba(255,0,0,0.4), inset 0 4px 12px rgba(255,255,255,0.15), inset 0 -4px 12px rgba(0,0,0,0.3);
+      cursor: pointer; transition: transform 0.08s, box-shadow 0.08s;
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+      font-size: 1.1rem; font-weight: 800; color: rgba(255,255,255,0.9);
+      letter-spacing: 0.5px; text-shadow: 0 1px 4px rgba(0,0,0,0.5); user-select: none;
     }
-
     #red-btn:active:not(:disabled) {
       transform: scale(0.93) translateY(4px);
-      box-shadow:
-        0 0 0 12px #1a0000,
-        0 0 0 16px #330000,
-        0 4px 20px rgba(255,0,0,0.3),
-        inset 0 4px 12px rgba(0,0,0,0.4);
+      box-shadow: 0 0 0 12px #1a0000, 0 0 0 16px #330000, 0 4px 20px rgba(255,0,0,0.3), inset 0 4px 12px rgba(0,0,0,0.4);
     }
-
     #red-btn:disabled {
       background: radial-gradient(circle at 35% 30%, #555, #333 60%, #222);
-      box-shadow:
-        0 0 0 12px #1a1a1a,
-        0 0 0 16px #222,
-        0 6px 20px rgba(0,0,0,0.3);
-      cursor: not-allowed;
-      color: #666;
+      box-shadow: 0 0 0 12px #1a1a1a, 0 0 0 16px #222, 0 6px 20px rgba(0,0,0,0.3);
+      cursor: not-allowed; color: #666;
     }
-
     #red-btn.pressed-me {
       background: radial-gradient(circle at 35% 30%, #22ff88, #00aa44 60%, #006622);
-      box-shadow:
-        0 0 0 12px #001a0a,
-        0 0 0 16px #003311,
-        0 12px 40px rgba(0,255,100,0.35);
+      box-shadow: 0 0 0 12px #001a0a, 0 0 0 16px #003311, 0 12px 40px rgba(0,255,100,0.35);
       color: rgba(255,255,255,0.95);
     }
-
-    /* Press order list */
-    #press-list {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    #press-list h3 {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: #555;
-      margin-bottom: 4px;
-    }
-
-    .press-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: #1a1a1a;
-      border-radius: 10px;
-      padding: 10px 14px;
-      border: 1px solid #2a2a2a;
-      animation: slide-in 0.2s ease;
-    }
-
+    #press-list { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+    #press-list h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; color: #555; margin-bottom: 4px; }
+    .press-item { display: flex; align-items: center; gap: 12px; background: #1a1a1a; border-radius: 10px; padding: 10px 14px; border: 1px solid #2a2a2a; animation: slide-in 0.2s ease; }
     .press-item.first { border-color: #ff2222; background: #1a0808; }
-    .press-item.last  { border-color: #555; }
-    .press-item.me    { border-color: #2255ff; background: #080820; }
+    .press-item.me { border-color: #2255ff; background: #080820; }
     .press-item.me.first { border-color: #ff2222; background: #1a0808; }
-
-    @keyframes slide-in {
-      from { opacity: 0; transform: translateY(-6px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .press-rank {
-      font-size: 1.1rem;
-      font-weight: 900;
-      min-width: 28px;
-      text-align: center;
-    }
-
-    .press-name {
-      font-size: 0.95rem;
-      font-weight: 600;
-      flex: 1;
-    }
-
-    .press-tag {
-      font-size: 0.7rem;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 20px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
+    @keyframes slide-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+    .press-rank { font-size: 1.1rem; font-weight: 900; min-width: 28px; text-align: center; }
+    .press-name { font-size: 0.95rem; font-weight: 600; flex: 1; }
+    .press-tag { font-size: 0.7rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
     .tag-first { background: #ff2222; color: #fff; }
     .tag-last  { background: #333; color: #aaa; }
     .tag-me    { background: #2255ff; color: #fff; }
-
-    .locked-banner {
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 10px;
-      padding: 10px 20px;
-      font-size: 0.85rem;
-      color: #888;
-      text-align: center;
-    }
-
     .pulse { animation: pulse 1.5s infinite; }
     @keyframes pulse {
       0%, 100% { box-shadow: 0 0 0 12px #1a0000, 0 0 0 16px #330000, 0 12px 40px rgba(255,0,0,0.4), inset 0 4px 12px rgba(255,255,255,0.15); }
       50%       { box-shadow: 0 0 0 12px #1a0000, 0 0 0 16px #330000, 0 20px 60px rgba(255,0,0,0.7), inset 0 4px 12px rgba(255,255,255,0.15); }
     }
-
-    .hidden { display: none !important; }
-
-    /* Connection dot */
-    .conn-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: #22cc55;
-      display: inline-block;
-      margin-right: 6px;
-    }
-    .conn-dot.off { background: #cc2222; }
   </style>
 </head>
 <body>
 
-<!-- Name screen -->
 <div id="name-screen">
   <h1>🔴 RED BUTTON</h1>
   <p>Entre ton pseudo pour rejoindre la partie</p>
@@ -293,86 +90,91 @@
   <button id="join-btn">Rejoindre</button>
 </div>
 
-<!-- Game screen -->
 <div id="game-screen">
   <div class="top-bar">
     <span class="round-badge" id="round-label">Round 1</span>
     <span class="my-name-badge" id="my-name-label">—</span>
   </div>
-
   <div id="status-msg">Appuie dès que tu connais la réponse !</div>
-
   <div class="btn-wrap">
-    <div class="btn-glow" id="btn-glow"></div>
+    <div class="btn-glow"></div>
     <button id="red-btn">BUZZ !</button>
   </div>
-
   <div id="press-list"></div>
 </div>
 
-<script src="/socket.io/socket.io.js"></script>
 <script>
-  const socket = io();
-  let myId = socket.id;
-  let myName = '';
-  let gameState = null;
+  const myId = localStorage.getItem('rb_id') || crypto.randomUUID();
+  localStorage.setItem('rb_id', myId);
 
-  const nameScreen = document.getElementById('name-screen');
-  const gameScreen = document.getElementById('game-screen');
-  const nameInput  = document.getElementById('name-input');
-  const joinBtn    = document.getElementById('join-btn');
-  const redBtn     = document.getElementById('red-btn');
-  const statusMsg  = document.getElementById('status-msg');
-  const pressList  = document.getElementById('press-list');
-  const roundLabel = document.getElementById('round-label');
-  const myNameLabel= document.getElementById('my-name-label');
-  const btnGlow    = document.getElementById('btn-glow');
+  const nameScreen  = document.getElementById('name-screen');
+  const gameScreen  = document.getElementById('game-screen');
+  const nameInput   = document.getElementById('name-input');
+  const joinBtn     = document.getElementById('join-btn');
+  const redBtn      = document.getElementById('red-btn');
+  const statusMsg   = document.getElementById('status-msg');
+  const pressList   = document.getElementById('press-list');
+  const roundLabel  = document.getElementById('round-label');
+  const myNameLabel = document.getElementById('my-name-label');
 
-  // Restore name from localStorage
   const saved = localStorage.getItem('rb_name');
   if (saved) nameInput.value = saved;
 
-  function join() {
+  let channel = null;
+
+  async function initPusher() {
+    const cfg = await fetch('/api/config').then(r => r.json());
+    const pusher = new Pusher(cfg.key, { cluster: cfg.cluster });
+    channel = pusher.subscribe('game');
+    channel.bind('state', render);
+  }
+
+  async function join() {
     const name = nameInput.value.trim();
     if (!name) { nameInput.focus(); return; }
-    myName = name;
     localStorage.setItem('rb_name', name);
-    socket.emit('join', name);
+    myNameLabel.textContent = name;
+
+    await fetch('/api/join', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerId: myId, name }),
+    });
+
+    // Get current state immediately
+    const state = await fetch('/api/state').then(r => r.json());
+    render(state);
+
     nameScreen.style.display = 'none';
     gameScreen.style.display = 'flex';
-    myNameLabel.textContent = name;
   }
 
   joinBtn.addEventListener('click', join);
   nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') join(); });
 
-  redBtn.addEventListener('click', () => {
+  redBtn.addEventListener('click', async () => {
     if (redBtn.disabled) return;
-    socket.emit('press');
+    redBtn.disabled = true;
+    await fetch('/api/press', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerId: myId }),
+    });
   });
 
-  socket.on('connect', () => { myId = socket.id; });
-
-  socket.on('state', (s) => {
-    gameState = s;
-    render(s);
+  window.addEventListener('beforeunload', () => {
+    navigator.sendBeacon('/api/leave', JSON.stringify({ playerId: myId }));
   });
 
   function render(s) {
     roundLabel.textContent = `Round ${s.round}`;
-
     const myPress = s.presses.find(p => p.id === myId);
     const myRank  = myPress ? s.presses.indexOf(myPress) + 1 : null;
-    const isFirst = myRank === 1;
-    const isLast  = myRank === s.presses.length && s.presses.length > 1;
 
-    // Button state
     const canPress = !s.locked && !myPress;
     redBtn.disabled = !canPress;
     redBtn.classList.toggle('pressed-me', !!myPress);
     redBtn.classList.toggle('pulse', canPress);
 
-    if (myPress && isFirst) {
+    if (myPress && myRank === 1) {
       redBtn.textContent = '1er !';
       statusMsg.textContent = '🥇 Tu es le premier ! À toi de jouer !';
       statusMsg.style.color = '#ff2222';
@@ -390,31 +192,22 @@
       statusMsg.style.color = '#ccc';
     }
 
-    // Press list
     pressList.innerHTML = '';
     if (s.presses.length > 0) {
       const h = document.createElement('h3');
       h.textContent = 'Ordre des buzzers';
       pressList.appendChild(h);
-
       s.presses.forEach((p, i) => {
         const div = document.createElement('div');
-        div.className = 'press-item' +
-          (i === 0 ? ' first' : '') +
-          (i === s.presses.length - 1 && s.presses.length > 1 ? ' last' : '') +
-          (p.id === myId ? ' me' : '');
-
+        div.className = 'press-item' + (i === 0 ? ' first' : '') + (p.id === myId ? ' me' : '');
         const rank = document.createElement('span');
         rank.className = 'press-rank';
         rank.textContent = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
-
         const name = document.createElement('span');
         name.className = 'press-name';
         name.textContent = p.name + (p.id === myId ? ' (toi)' : '');
-
         div.appendChild(rank);
         div.appendChild(name);
-
         if (i === 0) {
           const tag = document.createElement('span');
           tag.className = 'press-tag tag-first';
@@ -426,18 +219,18 @@
           tag.textContent = 'dernier';
           div.appendChild(tag);
         }
-
         if (p.id === myId && i !== 0) {
           const tag = document.createElement('span');
           tag.className = 'press-tag tag-me';
           tag.textContent = 'toi';
           div.appendChild(tag);
         }
-
         pressList.appendChild(div);
       });
     }
   }
+
+  initPusher();
 </script>
 </body>
 </html>
